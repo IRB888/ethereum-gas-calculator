@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ethereum Gas Calculator</title><style>body{font:17px/1.6 system-ui,sans-serif;background:#101827;color:#eaf0ff;margin:0}main{max-width:820px;margin:50px auto;padding:24px}h1{line-height:1.15}h2{font-size:1.2rem}label{display:block;margin:18px 0}input,select,button{font:inherit;border-radius:8px;padding:10px;border:1px solid #637187;background:#19263b;color:inherit}input[type=number]{display:block;width:calc(100% - 24px)}button{cursor:pointer;margin:8px 8px 8px 0}button:hover{background:#304766}.card{background:#19263b;padding:20px;border-radius:14px;margin:20px 0}.muted{color:#aebcd2}output{font-size:1.5rem;font-weight:700}a{color:#9ac5ff}input[type=checkbox]{margin-right:12px}progress{width:100%;height:20px}small{display:block}</style></head><body><main><p class="muted">A small, offline Ethereum tool</p><h1>Plan your gas budget</h1><p>Estimate the maximum gas budget for one or more Ethereum L1 transactions. Enter values from your wallet preview; this tool does not fetch live prices or connect to a wallet.</p><form id="form"><label>Gas limit per transaction<input id="gas" type="number" min="1" step="1" value="100000" required></label><label>Maximum fee per gas (gwei)<input id="fee" type="number" min="0" step="any" value="1" required></label><label>Number of transactions<input id="count" type="number" min="1" max="1000" step="1" value="2" required></label><label>ETH price in USD (optional)<input id="price" type="number" min="0" step="any" placeholder="Enter a current price"></label><label>Extra budget (%)<input id="buffer" type="number" min="0" max="1000" step="any" value="25" required></label><button type="submit">Calculate budget</button></form><section class="card" aria-live="polite"><h2>Estimated maximum budget</h2><output id="result">—</output><p id="usd"></p><p id="detail" class="muted"></p></section><h2>How it works</h2><p>ETH budget = gas limit × maximum fee in gwei × transaction count ÷ 1,000,000,000. The extra budget is added afterwards.</p><p class="muted">Actual execution can cost less. This is not a live quote and does not include transferred ETH, exchange withdrawal fees, token amounts, or special L2 fees. Token approvals and purchases can be separate transactions with different gas limits. Calculate them separately when their limits differ. Never enter a private key.</p><p><a href="https://ethereum.org/en/developers/docs/gas/">Ethereum gas documentation</a></p></main><script>
+const form = document.querySelector('#form');
+function calculate(event) {
+  if (event) event.preventDefault();
+  if (!form.reportValidity()) return;
+  const read = id => Number(document.getElementById(id).value);
+  const gas=read('gas'), fee=read('fee'), count=read('count'), buffer=read('buffer');
+  const budget=gas*fee*count/1e9*(1+buffer/100);
+  if (![gas,fee,count,buffer,budget].every(Number.isFinite)) {
+    document.querySelector('#result').textContent='Values are too large.';
+    document.querySelector('#usd').textContent='';
+    document.querySelector('#detail').textContent='Use finite numbers.';
+    return;
+  }
+  document.querySelector('#result').textContent=budget.toLocaleString('en-US',{maximumSignificantDigits:10})+' ETH';
+  const priceText=document.querySelector('#price').value;
+  const dollars=budget*read('price');
+  document.querySelector('#usd').textContent=priceText && Number.isFinite(dollars) ? new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(dollars) : 'Add an ETH price to see a USD estimate.';
+  document.querySelector('#detail').textContent=`${count} transaction(s), ${gas.toLocaleString('en-US')} gas each, ${fee} gwei maximum fee, ${buffer}% extra budget.`;
+}
+form.addEventListener('submit',calculate);
+calculate();
+</script></body></html>
