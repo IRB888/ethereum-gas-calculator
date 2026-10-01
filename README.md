@@ -4,6 +4,11 @@ A bilingual Ethereum gas-budget planner with a transaction basket, exact wei ari
 
 **[Open the app](https://irb888.github.io/ethereum-gas-calculator/)** · [Report a bug](https://github.com/IRB888/ethereum-gas-calculator/issues)
 
+## Version 2.2
+
+- Cross-tab protection now detects storage clearing as well as edits, and ignores unrelated session storage events.
+- A live-data response arriving after a conflict cannot replace the local plan or its warning. CSV and JSON exports remain available so unsaved work can be recovered before reload.
+
 ## Version 2.1
 
 - JSON backup download and validated restore (100 KB maximum). Restoring asks before replacing the current plan, discards unknown properties and marks all restored rates as manual, so old snapshots cannot appear live.
