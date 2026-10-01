@@ -4,6 +4,14 @@ A bilingual Ethereum gas-budget planner with a transaction basket, exact wei ari
 
 **[Open the app](https://irb888.github.io/ethereum-gas-calculator/)** · [Report a bug](https://github.com/IRB888/ethereum-gas-calculator/issues)
 
+## Version 2.3
+
+- Network cards show execution fees, entered extra fees and the exact reserve separately. Unknown L2 fees remain visibly unknown. CSV includes execution and reserve amounts.
+
+## Try it and report feedback
+
+Use made-up amounts and project names when testing. Report your browser/device, steps, expected and actual behavior through [the bug-report form](https://github.com/IRB888/ethereum-gas-calculator/issues/new?template=bug_report.yml). Never attach real financial backups, credentials or identity documents. Suggestions should describe a real task the tool cannot complete.
+
 ## Version 2.2
 
 - Cross-tab protection now detects storage clearing as well as edits, and ignores unrelated session storage events.
