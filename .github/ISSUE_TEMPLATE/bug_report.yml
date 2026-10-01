@@ -1,0 +1,34 @@
+name: Bug report
+description: Report a reproducible problem using example data.
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: "Please use fictional data. Do not upload financial backups, wallet secrets, credentials or identity documents."
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, device and app version
+      placeholder: "Chrome on Android, v2.3"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include example inputs and whether another tab was open.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Add an error message or a redacted screenshot if useful.
+    validations:
+      required: true
