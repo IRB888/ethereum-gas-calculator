@@ -1,26 +1,58 @@
-# ethereum-gas-calculator
+# Gas Planner
 
-An offline Ethereum L1 gas-budget calculator.
+A bilingual Ethereum gas-budget planner with a transaction basket, exact wei arithmetic and transparent cross-network comparison.
 
-## Run
+**[Open the app](https://irb888.github.io/ethereum-gas-calculator/)** · [Report a bug](https://github.com/IRB888/ethereum-gas-calculator/issues)
 
-Download `index.html` and open it in a modern browser. No installation, build step, wallet connection or API keys required.
+## Version 2.0
 
-## Features
+- Russian and English UI; responsive mobile layout and keyboard-accessible controls.
+- Up to 30 operations, each with its own gas limit and count. Presets for native transfers, ERC-20 transfers, approvals and swaps are explicitly examples, not transaction-specific estimates.
+- Ethereum, Base and Optimism side-by-side, with editable gas prices and explicit extra L2 fees.
+- One-click public gas-price and ETH/USD snapshots; per-source failures retain prior/manual values. Requests time out after 10 seconds. Chain IDs and API responses are validated.
+- Integer wei calculations, reserve rounded upward; CSV export includes inputs, completeness and source timestamps.
+- Local browser persistence, conflict detection across tabs and an offline manual mode.
 
-- Gas limit, max fee in gwei, transaction count and optional USD conversion.
-- Adjustable extra budget and input validation.
-- Manual estimates only; no live gas-price feed.
-- Formula: `gasLimit * maxFeeGwei * count / 1e9 * (1 + bufferPercent / 100)`.
-- Example: 100,000 gas × 1 gwei × 2 transactions + 25% = 0.00025 ETH.
+## Calculation and limitations
 
-## Limits
+`budgetWei = ceil((sum(gasLimit × count) × gasPriceWei + additionalFeesWei) × (1 + reservePercent / 100))`
 
-This is a personal planning tool, not financial advice or an official Legion/Jumper integration. Verify current requirements in the official sale interface.
+21000 gas × 10 gwei = **0.00021 ETH**, before reserves and extra fees.
 
-## Development
+`eth_gasPrice` is a current estimate, not an EIP-1559 maxFeePerGas guarantee. Execution can change before confirmation. Preset gas limits vary by contract and transaction. The same gas limits are used across comparison cards; adjust them to your actual operations and compare carefully.
 
-Built with plain HTML, CSS and JavaScript, with AI assistance. Contributions and bug reports are welcome.
+**Base/Optimism totals are incomplete while the other-fees field is blank.** Enter total L1 data/operator fees for the entire plan from a wallet quote. The app does not serialize transactions or estimate rollup data fees. An explicit zero means the user supplied zero; it is not an automatic fee discovery. Never choose a network solely because it looks cheaper: the receiving contract or sale must support it.
+
+USD is an approximate display conversion, not an exchange quote. Token principal, bridging and withdrawal costs are excluded unless manually included as other fees. Empty ETH/USD input suppresses dollar amounts.
+
+## Data sources and privacy
+
+No network requests on initial load. Clicking **Refresh live data** contacts:
+
+- [PublicNode Ethereum RPC](https://ethereum.publicnode.com/) — `eth_chainId`, `eth_gasPrice`
+- [Base public RPC](https://docs.base.org/) — same read-only methods
+- [Optimism public RPC](https://docs.optimism.io/) — same read-only methods
+- [Coinbase spot-price API](https://docs.cdp.coinbase.com/coinbase-app/track-apis/prices) — ETH/USD
+
+Providers receive normal network metadata, such as your IP address. No wallet address, secret, plan, or transaction is sent. Public services can rate-limit requests or block CORS; use manual inputs when unavailable. Snapshots older than five minutes are labeled stale. There is no automatic polling.
+
+Storage key: `gas-planner:v2`. Clearing browser data deletes the saved plan. CSV exports contain the numbers you entered. No analytics, external scripts, cookies or wallet permissions.
+
+## Tested
+
+Exact conversions, multi-operation totals, reserve rounding, numeric bounds, malformed RPC data, CSV escaping, and browser controls are checked.
+
+## Run locally
+
+Download `index.html` and open it in a modern browser, or serve this folder with `python3 -m http.server 8000`. No installation or build required. Local browser storage works best on a stable HTTP(S) origin. Moving between file://, localhost and the hosted site does not migrate browser data automatically.
+
+## Development & tests
+
+Requires Node.js 22+ only for tests. Run `node --test test.cjs`. No npm packages or runtime dependencies. The tests execute the same pure domain functions embedded in `index.html`, and check syntax of both scripts. GitHub Actions runs these tests on pushes and pull requests.
+
+The single-file app has two clearly separated scripts: `domain` (validation and calculations) and `app` (UI, persistence and interactions). CSS is embedded so the app can be downloaded and used without a build. Contributions should include tests for changed accounting/validation behavior.
+
+Built with AI assistance. This is an independent planning tool, not an official Legion or Jumper integration. It does not submit applications, connect a wallet or promise an allocation or a higher reputation score.
 
 ## License
 
