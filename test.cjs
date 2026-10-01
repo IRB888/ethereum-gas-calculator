@@ -14,3 +14,21 @@ const backup=()=>({version:1,plan:{lang:'ru',rows:[{type:'transfer',gas:'21000',
 test('backup round trip preserves calculations but clears live provenance',()=>{const p=D.restore(backup());assert.equal(D.eth(D.plan(p.rows,p.rates[0],p.extras[0],p.buffer).total),'0.000525');assert.equal(p.modes.join(','),'manual,manual,manual');assert.equal(p.times.join(','),'0,0,0');});
 test('backup rejects malformed shape, unsupported types and invalid prices',()=>{for(const change of [v=>v.version=2,v=>v.plan.rows[0].type='bad',v=>v.plan.rates=[],v=>v.plan.price='Infinity',v=>v.plan.rows[0].count='0']){const v=backup();change(v);assert.throws(()=>D.restore(v));}});
 test('backup discards unknown properties and does not alias imported arrays',()=>{const v=backup();v.plan.injected='bad';const p=D.restore(v);assert.equal(p.injected,undefined);v.plan.rows[0].gas='1';assert.equal(p.rows[0].gas,'21000');});
+
+// Small DOM/storage fixture for executing the real app event handlers, without dependencies.
+function appFixture(){
+ const nodes=new Map(),listeners={},values=new Map();let failWrite=false;
+ const node=id=>{if(!nodes.has(id))nodes.set(id,{id,value:'',style:{},dataset:{},disabled:false,textContent:'',innerHTML:'',files:[],addEventListener(){},setAttribute(){},after(){},append(){},focus(){},click(){},querySelectorAll(){return [];}});return nodes.get(id);};
+ const storage={getItem:k=>values.get(k)??null,setItem(k,v){if(failWrite)throw Error('quota');values.set(k,v);}};
+ const env={URL,TextEncoder,Intl,Date,AbortController,setTimeout,clearTimeout,setInterval(){},console,crypto:{randomUUID:()=> 'new-id'},confirm:()=>true,localStorage:storage,
+ document:{getElementById:node,documentElement:{},createElement:tag=>node('created-'+nodes.size),querySelectorAll:()=>[...nodes.values()]},
+ window:{addEventListener:(name,cb)=>listeners[name]=cb}};
+ // Translation queries must return only actual translated nodes (none in this fixture).
+ env.document.querySelectorAll=selector=>selector==='[data-t]'?[]:[...nodes.values()];
+ vm.createContext(env);for(const script of scripts)vm.runInContext(script[1],env);
+ return {env,node,storage,values,listeners,failWrites(){failWrite=true;},read:code=>vm.runInContext(code,env)};
+}
+function storageEvent(f,key,area=f.storage){f.listeners.storage({key,storageArea:area});}
+test('storage clear locks editing while recovery exports remain available',()=>{const f=appFixture();storageEvent(f,null);assert.equal(f.read('blocked'),true);assert.equal(f.node('add').disabled,true);assert.equal(f.node('export').disabled,false);assert.equal(f.read('backupButton.disabled'),false);});
+test('unrelated session storage must not lock a gas plan',()=>{const f=appFixture();storageEvent(f,'gas-planner:v2',{});assert.equal(f.read('blocked'),false);});
+test('late live responses preserve conflict warning and original rates',async()=>{const f=appFixture();let finish;f.env.json=()=>new Promise(resolve=>finish=resolve);f.env.rpc=async(i,method)=>method==='eth_chainId'?['0x1','0x2105','0xa'][i]:'0x3b9aca00';const before=f.read('JSON.stringify(state)');const pending=f.node('refresh').onclick();storageEvent(f,'gas-planner:v2');const warning=f.node('networkStatus').textContent;finish({data:{base:'ETH',currency:'USD',amount:'2500'}});await pending;assert.equal(f.read('JSON.stringify(state)'),before);assert.equal(f.node('networkStatus').textContent,warning);assert.equal(f.values.size,0);assert.equal(f.read('busy'),false);});
