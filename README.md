@@ -4,6 +4,10 @@ A bilingual Ethereum gas-budget planner with a transaction basket, exact wei ari
 
 **[Open the app](https://irb888.github.io/ethereum-gas-calculator/)** · [Report a bug](https://github.com/IRB888/ethereum-gas-calculator/issues)
 
+## Version 2.4
+
+- Inspect execution costs per operation on each network, including operation counts. The breakdown sums exactly to the execution fee; extra fees and reserve remain separate.
+
 ## Version 2.3
 
 - Network cards show execution fees, entered extra fees and the exact reserve separately. Unknown L2 fees remain visibly unknown. CSV includes execution and reserve amounts.
