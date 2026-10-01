@@ -16,6 +16,16 @@ A bilingual Ethereum gas-budget planner with a transaction basket, exact wei ari
 
 Use made-up amounts and project names when testing. Report your browser/device, steps, expected and actual behavior through [the bug-report form](https://github.com/IRB888/ethereum-gas-calculator/issues/new?template=bug_report.yml). Never attach real financial backups, credentials or identity documents. Suggestions should describe a real task the tool cannot complete.
 
+### Five-minute usability check
+
+Use a separate browser profile or back up your current plan first. These are fictional inputs, not live fee quotes. No wallet or funds are needed.
+
+1. **Budget:** make a plan containing only one ETH transfer (21,000 gas, count 1). Set Ethereum to 10 gwei and reserve to 25%. Expected execution: **0.00021 ETH**; reserve: **0.0000525 ETH**; total: **0.0002625 ETH**. Can you find each figure without help?
+2. **Incomplete estimates:** leave Base's extra-fees field blank, then enter an explicit 0. Expected: blank is marked incomplete; 0 is a manual input, not a fetched quote. Is that distinction understandable?
+3. **Recovery:** export a JSON backup of this fictional plan, change the operation count to 2, then restore the backup and confirm replacement. Expected: count returns to 1, rates are marked manual, and the ETH total matches task 1. Switch RU/EN: your numbers should remain unchanged.
+
+Share the task number, browser/device, what you expected, what happened, and one confusing label through the bug-report link above. Include only fictional test data. A failed or confusing task is useful feedback; stars and follows are not requested. Checks by the project author or an AI assistant are separate from independent user feedback.
+
 ## Version 2.2
 
 - Cross-tab protection now detects storage clearing as well as edits, and ignores unrelated session storage events.
