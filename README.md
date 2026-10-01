@@ -4,6 +4,10 @@ A bilingual Ethereum gas-budget planner with a transaction basket, exact wei ari
 
 **[Open the app](https://irb888.github.io/ethereum-gas-calculator/)** · [Report a bug](https://github.com/IRB888/ethereum-gas-calculator/issues)
 
+## Version 2.1
+
+- JSON backup download and validated restore (100 KB maximum). Restoring asks before replacing the current plan, discards unknown properties and marks all restored rates as manual, so old snapshots cannot appear live.
+
 ## Version 2.0
 
 - Russian and English UI; responsive mobile layout and keyboard-accessible controls.
