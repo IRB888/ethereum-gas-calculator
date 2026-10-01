@@ -1,0 +1,12 @@
+const test=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');
+const html=fs.readFileSync(__dirname+'/index.html','utf8');const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];for(const [i,s] of scripts.entries())new vm.Script(s[1],{filename:`script-${i}`});const context={};vm.runInNewContext(scripts[0][1],context);const D=context.Domain;
+test('document has English/Russian app and both scripts parse',()=>{assert.equal(scripts.length,2);assert.ok(html.includes('lang="ru"'));});
+test('21000 gas at 10 gwei is exactly 0.00021 ETH',()=>{assert.equal(D.eth(D.plan([{gas:'21000',count:'1'}],'10','0','0').total),'0.00021');});
+test('mixed operations, extra fees and reserve are all included',()=>{const r=D.plan([{gas:'50000',count:'2'},{gas:'200000',count:'1'}],'1','0.0001','25');assert.equal(r.gas,300000n);assert.equal(D.eth(r.total),'0.0005');});
+test('reserve rounds up to a whole wei',()=>{assert.equal(D.plan([{gas:'1',count:'1'}],'0.000000001','','0.01').total,2n);});
+test('unknown extra remains different from explicit zero in input but computes execution subtotal',()=>{assert.equal(D.plan([{gas:'21000',count:'1'}],'1','','0').total,21000000000000n);});
+test('reject blank, negative, malformed, overprecision, scientific values',()=>{for(const v of ['','-1','Infinity','NaN','1e9','1.0000000001','1,5','0x2'])assert.throws(()=>D.plan([{gas:'1',count:'1'}],v,'','0'));});
+test('reject fractional/zero/oversized gas counts and too many rows',()=>{for(const gas of ['0','1.5','100000001'])assert.throws(()=>D.plan([{gas,count:'1'}],'1','','0'));assert.throws(()=>D.plan([{gas:'1',count:'1001'}],'1','','0'));assert.throws(()=>D.plan(Array(31).fill({gas:'1',count:'1'}),'1','','0'));});
+test('bounds for reserve and extra ETH',()=>{assert.throws(()=>D.plan([{gas:'1',count:'1'}],'1','1001','0'));assert.throws(()=>D.plan([{gas:'1',count:'1'}],'1','','1000.01'));});
+test('RPC conversions validate server data',()=>{assert.equal(D.rpcGwei('0x3b9aca00'),'1.000000000');for(const v of [null,'garbage','0x','0xzz'])assert.throws(()=>D.rpcGwei(v));});
+test('CSV cells quote text and neutralize formula-leading values',()=>{assert.equal(D.csvCell('=1+1'),'"\'=1+1"');assert.equal(D.csvCell('a"b'),'"a""b"');});
